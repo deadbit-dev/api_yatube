@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.serializers import ValidationError
 
 from posts.models import Follow, Group, Comment, Post, User
 
@@ -11,6 +12,8 @@ class UsernameRelatedPk(serializers.Field):
 
     def to_internal_value(self, data):
         data = get_object_or_404(User, username=data)
+        if data == self.context.get('request').user:
+            raise ValidationError('You can\'t subscribe to yourself')
         return data
 
 

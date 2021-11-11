@@ -3,7 +3,6 @@ from rest_framework import viewsets
 from rest_framework import mixins, filters
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.serializers import ValidationError
 
 from posts.models import Follow, Group, Post
 from .permissions import AuthorOrReadOnly
@@ -62,6 +61,4 @@ class FollowViewSet(ListCreateViewset):
         return Follow.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        if serializer.validated_data['following'] == self.request.user:
-            raise ValidationError('You can\'t subscribe to yourself')
         serializer.save(user=self.request.user)
