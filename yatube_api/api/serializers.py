@@ -6,23 +6,15 @@ from rest_framework.serializers import ValidationError
 from posts.models import Follow, Group, Comment, Post, User
 
 
-class UsernameRelatedPk(serializers.Field):
-    def to_representation(self, value):
-        return value.username
-
-    def to_internal_value(self, data):
-        data = get_object_or_404(User, username=data)
-        if data == self.context.get('request').user:
-            raise ValidationError('You can\'t subscribe to yourself')
-        return data
-
-
 class FollowSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(
         slug_field='username', read_only=True,
         default=serializers.CurrentUserDefault()
     )
-    following = serializers.CharField()
+    following = serializers.SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all()
+    )
 
     class Meta:
         model = Follow
