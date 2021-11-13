@@ -22,7 +22,7 @@ class FollowSerializer(serializers.ModelSerializer):
         slug_field='username', read_only=True,
         default=serializers.CurrentUserDefault()
     )
-    following = UsernameRelatedPk()
+    following = serializers.CharField()
 
     class Meta:
         model = Follow
@@ -35,6 +35,12 @@ class FollowSerializer(serializers.ModelSerializer):
                 message='The subscription must be unique'
             )
         ]
+
+    def validate_following(self, value):
+        value = get_object_or_404(User, username=value)
+        if value == self.context.get('request').user:
+            raise ValidationError('You can\'t subscribe to yourself')
+        return value
 
 
 class GroupSerializer(serializers.ModelSerializer):
